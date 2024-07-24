@@ -96,23 +96,6 @@ case "${no_default_features}" in
     *) bail "'no-default-features' input option must be 'true' or 'false': '${no_default_features}'" ;;
 esac
 
-bin_name="${INPUT_BIN:?}"
-bin_names=()
-if [[ -n "${bin_name}" ]]; then
-    # We can expand a glob by expanding a variable without quote, but that way
-    # has a security issue of shell injection.
-    if [[ "${bin_name}" == *"?"* ]] || [[ "${bin_name}" == *"*"* ]] || [[ "${bin_name}" == *"["* ]]; then
-        # This check is not for security but for diagnostic purposes.
-        # We quote the filename, so without this uses get an error like
-        # "cp: cannot stat 'app-*': No such file or directory".
-        bail "glob pattern in 'bin' input option is not supported yet"
-    fi
-    while read -rd,; do bin_names+=("${REPLY}"); done <<<"${bin_name},"
-fi
-if [[ ${#bin_names[@]} -gt 1 ]] && [[ "${archive}" == *"\$bin"* ]]; then
-    bail "when multiple binary names are specified, default archive name or '\$bin' variable cannot be used in 'archive' option"
-fi
-
 include="${INPUT_INCLUDE:-}"
 includes=()
 if [[ -n "${include}" ]]; then
@@ -228,7 +211,6 @@ if [[ "${build_tool}" == "cargo" ]]; then
     esac
 fi
 
-archive="${archive/\$bin/${bin_names[0]}}"
 archive="${archive/\$target/${target}}"
 archive="${archive/\$tag/${tag}}"
 
@@ -256,10 +238,6 @@ case "${input_profile}" in
 esac
 
 bins=()
-for bin_name in "${bin_names[@]}"; do
-    bins+=("${bin_name}${exe:-}")
-    build_options+=("--bin" "${bin_name}")
-done
 if [[ -n "${features}" ]]; then
     build_options+=("--features" "${features}")
 fi
