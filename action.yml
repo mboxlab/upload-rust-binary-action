@@ -1,12 +1,7 @@
-name: Build and upload Rust binary to GitHub Releases
+name: Build and upload Rust gmod binary to GitHub Releases
 description: GitHub Action for building and uploading Rust binary to GitHub Releases
 
 inputs:
-  bin:
-    description: >
-      Comma-separated list of binary names (non-extension portion of filename) to build and upload.
-      Note that glob pattern is not supported yet.
-    required: true
   archive:
     description: Archive name (non-extension portion of filename) to be uploaded (variables `$bin`, `$target`, `$tag`, and any string)
     required: false
@@ -130,7 +125,6 @@ runs:
       run: bash --noprofile --norc "${GITHUB_ACTION_PATH:?}/main.sh"
       shell: bash
       env:
-        INPUT_BIN: ${{ inputs.bin }}
         INPUT_ARCHIVE: ${{ inputs.archive }}
         INPUT_TARGET: ${{ inputs.target }}
         INPUT_FEATURES: ${{ inputs.features }}
